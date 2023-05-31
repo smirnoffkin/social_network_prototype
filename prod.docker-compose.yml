@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: 'app-container'
+    command: make run-prod
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+      - postgres
+
+  postgres:
+    container_name: 'postgres-container'
+    image: postgres
+    restart: always
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+
+  redis:
+    container_name: 'redis-container'
+    image: redis:alpine
+    volumes:
+      - ./docker/redis/data:/data
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+
+volumes:
+  pg_data:

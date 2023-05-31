@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: 'postgres-container'
+    image: postgres:14
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - '${POSTGRES_PORT}:5432'
+  redis:
+    container_name: 'redis-container'
+    image: redis:alpine
+    volumes:
+      - ./docker/redis/data:/data
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
