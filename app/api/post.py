@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +19,8 @@ from app.services.post import (
     _remove_reaction_from_post
 )
 
+logger = getLogger(__name__)
+
 router = APIRouter(prefix="/post", tags=["Post (articles)"])
 
 
@@ -33,7 +37,8 @@ async def create_post(
 ) -> ShowPost:
     try:
         return await _create_new_post(body, current_user.id, db)
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This post is already exists"
@@ -108,7 +113,8 @@ async def update_post(
             updated_post_params=updated_post_params,
             db=db
         )
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bad request"

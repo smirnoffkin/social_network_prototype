@@ -1,3 +1,4 @@
+from logging import getLogger
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,6 +10,8 @@ from app.db.postgres.models import User
 from app.schemas.user import ShowAdmin
 from app.services.oauth2 import get_current_user_from_token
 from app.services.user import _get_user_by_id, _update_user
+
+logger = getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -54,7 +57,8 @@ async def grant_admin_privilege(
             user_id=user_id,
             db=db
         )
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bad request."
@@ -103,7 +107,8 @@ async def revoke_admin_privilege(
             user_id=user_id,
             db=db
         )
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bad request."
