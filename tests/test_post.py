@@ -107,7 +107,11 @@ async def test_get_post(client: AsyncClient, post: dict):
     assert data["is_published"] is True
 
 
-@pytest.mark.parametrize("post_id", [(4), (1000), (999999)])
+@pytest.mark.parametrize("post_id", [
+    (4),
+    (1000),
+    (999999)
+])
 async def test_get_post_not_exists(client: AsyncClient, post_id: int):
     res = await client.get(f"/post/{id}?post_id={post_id}")
     assert res.status_code == status.HTTP_404_NOT_FOUND

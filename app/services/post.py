@@ -19,19 +19,10 @@ async def _create_new_post(
 ) -> ShowPost:
     async with db.begin():
         post_crud = PostCRUD(db)
-        post = await post_crud.create_post(
+        return await post_crud.create_post(
             title=body.title,
             content=body.content,
             owner_id=owner_id
-        )
-        return ShowPost(
-            id=post.id,
-            title=post.title,
-            content=post.content,
-            owner_id=post.owner_id,
-            is_published=post.is_published,
-            created_at=post.created_at,
-            updated_at=post.updated_at,
         )
 
 
@@ -41,7 +32,6 @@ async def _get_post_by_id(post_id: int, db: AsyncSession) -> ShowPost | None:
         post = await post_crud.get_post_by_id(post_id)
         if post is None:
             return
-
         return await enrich_post_with_reactions(post)
 
 
