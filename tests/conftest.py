@@ -42,7 +42,6 @@ async def prepare_database():
     if not database_exists(DATABASE_URL):
         create_database(DATABASE_URL)
 
-    print(settings.database_url)
     Base.metadata.drop_all(bind=sync_engine)
     Base.metadata.create_all(bind=sync_engine)
 

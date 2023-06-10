@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +18,8 @@ from app.services.user import (
 )
 from app.utils.celery.worker import verify_email_for_registration
 
+logger = getLogger(__name__)
+
 router = APIRouter(prefix="/user", tags=["User"])
 
 
@@ -31,7 +35,8 @@ async def create_user(
 ) -> ShowUser:
     try:
         new_user = await _create_new_user(body, db)
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This username or email is already in use"
@@ -98,7 +103,8 @@ async def update_user(
             user_id=current_user.id,
             db=db
         )
-    except IntegrityError:
+    except IntegrityError as err:
+        logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bad request"

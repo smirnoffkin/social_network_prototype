@@ -41,7 +41,7 @@ class DefaultSettings(BaseSettings):
 
     @property
     def broker_url(self):
-        return f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     class Config:
         env_file = ".env"

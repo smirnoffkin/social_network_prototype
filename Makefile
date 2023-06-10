@@ -31,7 +31,7 @@ down-dev:
 	docker-compose -f dev.docker-compose.yml down
 
 build-prod:
-	docker-compose build
+	docker-compose -f prod.docker-compose.yml build
 
 up-prod:
 	docker-compose -f prod.docker-compose.yml up -d --build

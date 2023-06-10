@@ -5,29 +5,21 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.postgres.models import PortalRole, User
-from app.schemas.user import CreateUser, ShowUser
+from app.schemas.user import CreateUser
 from app.services.crud import UserCRUD
 from app.services.security import Hasher
 
 
-async def _create_new_user(body: CreateUser, db: AsyncSession) -> ShowUser:
+async def _create_new_user(body: CreateUser, db: AsyncSession) -> User:
     async with db.begin():
         user_crud = UserCRUD(db)
-        user = await user_crud.create_user(
+        return await user_crud.create_user(
             username=body.username,
             first_name=body.first_name,
             last_name=body.last_name,
             email=body.email,
             hashed_password=Hasher.get_hashed_password(body.password),
             roles=[PortalRole.ROLE_PORTAL_USER],
-        )
-        return ShowUser(
-            id=user.id,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            email=user.email,
-            is_active=user.is_active,
         )
 
 

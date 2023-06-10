@@ -29,7 +29,7 @@
 3. `make up-dev`
 4. `make run`
 
-Go to `http://localhost/docs` to see open api docs
+Go to `http://localhost:8080/docs` to see open api docs
 
 ## Project technology stack
 
