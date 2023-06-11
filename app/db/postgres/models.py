@@ -82,3 +82,17 @@ class Post(BaseAlchemyModel):
         nullable=False
     )
     owner = relationship("User", back_populates="posts")
+
+
+class Follower(Base):
+    __tablename__ = "follows"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
+    follower_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE")
+    )

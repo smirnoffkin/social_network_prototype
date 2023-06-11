@@ -36,13 +36,14 @@ async def create_post(
     current_user: User = Depends(get_current_user_from_token)
 ) -> ShowPost:
     try:
-        return await _create_new_post(body, current_user.id, db)
+        new_post = await _create_new_post(body, current_user.id, db)
     except IntegrityError as err:
         logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This post is already exists"
         )
+    return new_post
 
 
 @router.get(
