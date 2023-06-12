@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -52,6 +53,7 @@ async def create_user(
     response_model=ShowUser,
     status_code=status.HTTP_200_OK
 )
+@cache(expire=120)
 async def get_user(
     username: str,
     db: AsyncSession = Depends(get_db)

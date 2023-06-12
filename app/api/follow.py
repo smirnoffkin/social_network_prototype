@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -73,6 +74,7 @@ async def follow_user(
     description="Check status of follow",
     status_code=status.HTTP_200_OK
 )
+@cache(expire=60)
 async def get_status_of_follow(
     username: str,
     db: AsyncSession = Depends(get_db),
@@ -100,6 +102,7 @@ async def get_status_of_follow(
     response_model=list[Follow],
     status_code=status.HTTP_200_OK
 )
+@cache(expire=60)
 async def get_list_of_followers(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user_from_token)
@@ -113,6 +116,7 @@ async def get_list_of_followers(
     response_model=list[Follow],
     status_code=status.HTTP_200_OK
 )
+@cache(expire=60)
 async def get_list_of_following(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user_from_token)

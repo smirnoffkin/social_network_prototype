@@ -1,7 +1,9 @@
 import asyncio
+from unittest import mock
 
 import pytest
 from httpx import AsyncClient
+from asgi_lifespan import LifespanManager
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -64,8 +66,13 @@ async def client(session):
             await session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        yield client
+
+    # https://github.com/long2ice/fastapi-cache/issues/49
+    # https://github.com/encode/httpx/issues/350
+    mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
+    async with LifespanManager(app):
+        async with AsyncClient(app=app, base_url="http://test") as client:
+            yield client
 
 
 async def create_test_auth_headers_for_user(email: str) -> dict:
