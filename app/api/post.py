@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -52,6 +53,7 @@ async def create_post(
     response_model=ShowPost,
     status_code=status.HTTP_200_OK
 )
+@cache(expire=10)
 async def get_post(
     post_id: int,
     db: AsyncSession = Depends(get_db)
@@ -71,6 +73,7 @@ async def get_post(
     response_model=list[ShowPost],
     status_code=status.HTTP_200_OK
 )
+@cache(expire=10)
 async def get_all_posts_by_title(
     title: str,
     db: AsyncSession = Depends(get_db)

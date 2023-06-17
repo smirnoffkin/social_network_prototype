@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import and_, select, update
+from sqlalchemy import and_, delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.postgres.models import PortalRole, Post, User
+from app.db.postgres.models import PortalRole, Follower, Post, User
 from app.db.redis.connection import redis
 from app.db.redis.models import PostReaction, PostReactionRedisSet
 
@@ -222,6 +222,73 @@ class PostCRUD:
         restored_post_row = res.fetchone()
         if restored_post_row is not None:
             return restored_post_row[0]
+
+
+class FollowCRUD:
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+    async def create_follow(
+        self,
+        user_id: UUID,
+        follower_id: UUID
+    ) -> None:
+        new_follow = Follower(
+            user_id=user_id,
+            follower_id=follower_id
+        )
+        self.db_session.add(new_follow)
+        await self.db_session.commit()
+
+    async def get_follow(
+        self,
+        user_id: UUID,
+        follower_id: UUID
+    ) -> Follower | None:
+        query = (
+            select(Follower)
+            .where(
+                and_(
+                    Follower.user_id == user_id,
+                    Follower.follower_id == follower_id
+                )
+            )
+        )
+        res = await self.db_session.execute(query)
+        follow_row = res.fetchone()
+        if follow_row is not None:
+            return follow_row[0]
+
+    async def get_all_followers(self, user_id: UUID) -> list:
+        query = (
+            select(Follower)
+            .where(Follower.user_id == user_id)
+        )
+        res = await self.db_session.execute(query)
+        followers = list(res.scalars().all())
+        return followers
+
+    async def get_all_following(self, follower_id: UUID) -> list:
+        query = (
+            select(Follower)
+            .where(Follower.follower_id == follower_id)
+        )
+        res = await self.db_session.execute(query)
+        following = list(res.scalars().all())
+        return following
+
+    async def delete_follow(self, user_id: UUID, follower_id: UUID) -> None:
+        query = (
+            delete(Follower)
+            .where(
+                and_(
+                    Follower.user_id == user_id,
+                    Follower.follower_id == follower_id
+                )
+            )
+        )
+        await self.db_session.execute(query)
+        await self.db_session.commit()
 
 
 class PostReactionCRUD:

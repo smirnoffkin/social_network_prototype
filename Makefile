@@ -46,6 +46,9 @@ run-prod:
 up-celery:
 	celery -A app.utils.celery.worker:celery worker --loglevel=INFO --pool=solo
 
+up-flower:
+	celery -A app.utils.celery.worker:celery flower
+
 up-redis:
 	docker run -d --name redis -p 6379:6379 redis:alpine
 
