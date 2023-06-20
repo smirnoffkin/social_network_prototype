@@ -96,3 +96,10 @@ class Follower(Base):
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE")
     )
+
+
+class Message(BaseAlchemyModel):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True)
+    message = Column(TEXT)
