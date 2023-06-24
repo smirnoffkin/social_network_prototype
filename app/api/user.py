@@ -35,16 +35,21 @@ async def create_user(
     db: AsyncSession = Depends(get_db)
 ) -> ShowUser:
     try:
-        new_user = await _create_new_user(body, db)
+        is_verified_email = verify_email_for_registration.delay(body.email)
+        if is_verified_email:
+            new_user = await _create_new_user(body, db)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You have not verified your email"
+            )
     except IntegrityError as err:
         logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This username or email is already in use"
         )
-    else:
-        verify_email_for_registration.delay(body.email)
-        return new_user
+    return new_user
 
 
 @router.get(

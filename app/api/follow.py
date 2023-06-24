@@ -51,7 +51,7 @@ async def follow_user(
     )
     if is_follow_exists:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"You are already following user {username}"
         )
     try:
@@ -70,7 +70,7 @@ async def follow_user(
 
 
 @router.get(
-    "/",
+    "/{username}",
     description="Check status of follow",
     status_code=status.HTTP_200_OK
 )
@@ -97,7 +97,7 @@ async def get_status_of_follow(
 
 
 @router.get(
-    "/followers",
+    "/list/followers",
     description="Get a list of my followers",
     response_model=list[Follow],
     status_code=status.HTTP_200_OK
@@ -111,7 +111,7 @@ async def get_list_of_followers(
 
 
 @router.get(
-    "/following",
+    "/list/following",
     description="Get a list of my following",
     response_model=list[Follow],
     status_code=status.HTTP_200_OK
