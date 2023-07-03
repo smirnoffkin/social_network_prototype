@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from starlette_exporter import handle_metrics, PrometheusMiddleware
 
 from app.api import main_api_router
 from app.db.redis.connection import redis
@@ -16,7 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(PrometheusMiddleware)
 
+app.add_route("/metrics", handle_metrics)
 app.include_router(main_api_router)
 
 

@@ -10,6 +10,8 @@ services:
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - custom
     depends_on:
       - redis
       - postgres
@@ -22,6 +24,8 @@ services:
       - pg_data:/var/lib/postgresql/data/
     env_file:
       - .env
+    networks:
+      - custom
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
 
@@ -33,8 +37,48 @@ services:
     env_file:
       - .env
     restart: always
+    networks:
+      - custom
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
 
+  prometheus:
+    depends_on:
+      - app
+    image: prom/prometheus:v2.43.0
+    container_name: 'prometheus-container'
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - custom
+
+  grafana:
+    container_name: 'grafana-container'
+    image: grafana/grafana:8.5.22
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - grafana-config:/etc/grafana
+    depends_on:
+      - prometheus
+    restart: always
+    networks:
+      - custom
+    user: "0"
+
+networks:
+  custom:
+    driver: bridge
+
 volumes:
   pg_data:
+  grafana-data:
+  grafana-config:
+  prometheus-data:
